@@ -137,8 +137,8 @@ function applySmushRules(lc, rc, hardblank, smushRules) {
   }
   if (smushRules & 16) {
     if (lc === '>' && rc === '<') return 'X';
-    if (lc === '\\' && rc === '/') return '|';
-    if (lc === '/' && rc === '\\') return 'Y';
+    if (lc === '/' && rc === '\\') return '|';
+    if (lc === '\\' && rc === '/') return 'Y';
   }
   return null;
 }

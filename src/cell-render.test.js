@@ -77,6 +77,24 @@ test('renderCellRows supports lowercase glyph keys when rendering uppercase text
   assert.equal(cellRowsToPlainText(rows), 'x');
 });
 
+test('renderCellRows ignores colors recorded for a missing chars row', () => {
+  const rows = renderCellRows({
+    kind: 'tdf-color',
+    format: 'tdf-compact-v1',
+    height: 2,
+    spacing: 0,
+    colorSlots: ['0x0f'],
+    glyphs: {
+      A: {
+        chars: ['██'], // second row missing: blank
+        colors: ['0f0f', '0f'], // stray short colors row for the blank row
+      },
+    },
+  }, 'A');
+
+  assert.deepEqual(rows[1].map((cell) => cell.color), ['0x00', '0x00']);
+});
+
 test('renderCellRows rejects unsupported characters', () => {
   assert.throws(
     () => renderCellRows(font, 'AZ'),

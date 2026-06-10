@@ -68,6 +68,16 @@ test('renderFlfRows smush rule 5: > and < smush to X', () => {
   assert.deepEqual(renderFlfRows(font, 'AB'), ['X']);
 });
 
+test('renderFlfRows smush rule 5: / and \\ smush to |', () => {
+  const font = makeFont({ layoutMask: 128 | 16, glyphs: { A: ['/'], B: ['\\'] } });
+  assert.deepEqual(renderFlfRows(font, 'AB'), ['|']);
+});
+
+test('renderFlfRows smush rule 5: \\ and / smush to Y', () => {
+  const font = makeFont({ layoutMask: 128 | 16, glyphs: { A: ['\\'], B: ['/'] } });
+  assert.deepEqual(renderFlfRows(font, 'AB'), ['Y']);
+});
+
 test('renderFlfRows smush rule 6: two hardblanks smush to hardblank (replaced by space in output)', () => {
   const font = makeFont({ hardblank: '$', layoutMask: 128 | 32, glyphs: { A: ['$'], B: ['$'] } });
   assert.deepEqual(renderFlfRows(font, 'AB'), [' ']);

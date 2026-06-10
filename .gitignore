@@ -15,3 +15,8 @@ docs/superpowers/
 
 # Cloudflare Wrangler local state
 .wrangler/
+
+# Environment and coverage
+.env
+.env.*
+coverage/

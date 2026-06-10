@@ -26,11 +26,16 @@ const HTML_HEADERS = {
   'Access-Control-Allow-Origin': '*',
 };
 
+// C0 controls (except \n), DEL, and C1 controls. Output is terminal-bound, so
+// any of these in user-influenced strings is an ANSI escape injection vector.
+const CONTROL_CHARS = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/;
+const CONTROL_CHARS_G = new RegExp(CONTROL_CHARS.source, 'g');
+
 function error(status, message) {
   return {
     status,
     headers: { ...PLAIN_HEADERS, 'Cache-Control': 'no-store' },
-    body: `${message}\n`,
+    body: `${String(message).replace(CONTROL_CHARS_G, '')}\n`,
   };
 }
 
@@ -103,6 +108,9 @@ export async function handleApi(rawQuery, accept, loaders) {
   text = text.replace(/\\n/g, '\n');
   if (text.length > MAX_TEXT) {
     return error(400, `text too long (max ${MAX_TEXT} characters)`);
+  }
+  if (CONTROL_CHARS.test(text)) {
+    return error(400, 'text must not contain control characters');
   }
 
   const mode = params.get('mode') ?? 'ansi';

@@ -1157,12 +1157,27 @@ async function selectedFont() {
   return { kind: 'plain', font };
 }
 
-async function loadTdfFont(key) {
+// In-flight font fetches keyed by font key, so concurrent renders of the same
+// uncached font share one request instead of fetching it twice.
+const inflightFontLoads = new Map();
+
+function dedupeFontLoad(mapKey, load) {
+  const pending = inflightFontLoads.get(mapKey);
+  if (pending) return pending;
+  const promise = load().finally(() => inflightFontLoads.delete(mapKey));
+  inflightFontLoads.set(mapKey, promise);
+  return promise;
+}
+
+function loadTdfFont(key) {
   const cached = state.loadedTdfFonts.get(key);
   if (cached) {
-    return cached;
+    return Promise.resolve(cached);
   }
+  return dedupeFontLoad(`tdf:${key}`, () => fetchTdfFont(key));
+}
 
+async function fetchTdfFont(key) {
   const entry = state.tdfIndex.find((candidate) => candidate.key === key);
   if (!entry) {
     throw new Error(`unknown TDF font "${key}"`);
@@ -1206,10 +1221,13 @@ async function loadFlfIndex() {
   );
 }
 
-async function loadFlfFont(key) {
+function loadFlfFont(key) {
   const cached = state.loadedFlfFonts.get(key);
-  if (cached) return cached;
+  if (cached) return Promise.resolve(cached);
+  return dedupeFontLoad(`flf:${key}`, () => fetchFlfFont(key));
+}
 
+async function fetchFlfFont(key) {
   const entry = state.flfIndex.find((e) => e.key === key);
   if (!entry) throw new Error(`unknown FLF font "${key}"`);
 

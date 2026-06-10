@@ -161,6 +161,31 @@ test('invalid plaincolor -> 400', async () => {
   assert.equal(res.status, 400);
 });
 
+test('control characters in text -> 400 (ANSI injection)', async () => {
+  const payload = encodeURIComponent('{{\x1b]52;c;evil\x07}}');
+  const res = await handleApi(`text=${payload}&font=demo`, '', loaders);
+  assert.equal(res.status, 400);
+  assert.ok(!res.body.includes('\x1b'));
+});
+
+test('C1 control characters in text -> 400', async () => {
+  const payload = encodeURIComponent('{{\u009b31m}}');
+  const res = await handleApi(`text=${payload}&font=demo`, '', loaders);
+  assert.equal(res.status, 400);
+});
+
+test('newlines in text remain allowed', async () => {
+  const res = await handleApi(`text=${encodeURIComponent('A\nB')}&font=demo&mode=plain`, '', loaders);
+  assert.equal(res.status, 200);
+});
+
+test('error body strips control characters from reflected params', async () => {
+  const evil = encodeURIComponent('\x1b[2Jnope');
+  const res = await handleApi(`text=A&font=${evil}`, '', loaders);
+  assert.equal(res.status, 400);
+  assert.ok(!res.body.includes('\x1b'));
+});
+
 test('plaincolor omitted -> auto (solid color), no error', async () => {
   const res = await handleApi('text=' + encodeURIComponent('{{hi}}\nA') + '&font=demo&color=00ff00', '', loaders);
   assert.equal(res.status, 200);

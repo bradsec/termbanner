@@ -147,5 +147,9 @@ curl 'https://termbanner.com/api?text=HI&font=1911'
 - Successful responses send `Cache-Control: public, max-age=86400`; identical
   requests are served from the CDN edge cache.
 - The API is public, read-only, and rate-limited at the edge.
+- `text` may not contain control characters (only printable characters and
+  newlines are accepted); requests containing them return `400`.
+- Rendered output is capped at 500,000 cells; larger renders return
+  `400 rendered output too large`.
 - The web app shows a copyable `curl` command that reproduces the current banner,
   so a design built in the UI can be replayed from the command line.

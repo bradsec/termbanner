@@ -43,9 +43,14 @@ function glyphCellRows(font, char, index) {
 
   const glyphWidth = glyph.chars[0] ? Array.from(glyph.chars[0]).length : 0;
   return Array.from({ length: font.height }, (_, rowIndex) => {
-    const charsRow = glyph.chars[rowIndex] ?? ' '.repeat(glyphWidth);
-    const colorsRow = glyph.colors[rowIndex] ?? '00'.repeat(glyphWidth);
-    if (glyph.chars[rowIndex] !== undefined) {
+    // A missing chars row means a blank row; ignore any colors row recorded for
+    // it so a short/stray colors string cannot produce malformed slot keys.
+    const hasCharsRow = glyph.chars[rowIndex] !== undefined;
+    const charsRow = hasCharsRow ? glyph.chars[rowIndex] : ' '.repeat(glyphWidth);
+    const colorsRow = hasCharsRow
+      ? (glyph.colors[rowIndex] ?? '00'.repeat(glyphWidth))
+      : '00'.repeat(glyphWidth);
+    if (hasCharsRow) {
       validateCompactGlyphRow(char, rowIndex, charsRow, colorsRow);
     }
 
