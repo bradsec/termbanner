@@ -1,0 +1,23 @@
+{
+  "name": "termbanner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "prebuild": "npm run fonts",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test",
+    "fonts": "node scripts/build-fonts.mjs"
+  },
+  "dependencies": {
+    "jszip": "3.10.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.0",
+    "playwright": "^1.60.0",
+    "tailwindcss": "4.3.0",
+    "vite": "8.0.16"
+  }
+}

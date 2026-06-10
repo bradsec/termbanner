@@ -1,0 +1,1516 @@
+/* Perfect DOS VGA 437 — local bundle (see public/fonts/) */
+@font-face {
+  font-family: "Perfect DOS VGA 437";
+  src: url("/fonts/PerfectDOSVGA437.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* =========================================
+   Design tokens
+   ========================================= */
+:root {
+  --win-desktop:    #008080;
+  --win-face:       #C0C0C0;
+  --win-text:       #000000;
+  --win-titlebar:   #000080;
+  --win-title-text: #FFFFFF;
+  --win-inactive:   #808080;
+  --win-input-bg:   #FFFFFF;
+  --win-disabled:   #808080;
+  --win-hi:         #FFFFFF;
+  --win-light:      #DFDFDF;
+  --win-shadow:     #808080;
+  --win-dark:       #404040;
+  --dos-bg:         #000000;
+  --dos-text:       #AAAAAA;
+  --dos-prompt:     #FFFF55;
+  --ui-font:  "MS Sans Serif", Tahoma, Arial, Helvetica, sans-serif;
+  --dos-font: "Perfect DOS VGA 437", "Courier New", "DejaVu Sans Mono", monospace;
+  color-scheme: light;
+}
+
+/* =========================================
+   Reset
+   ========================================= */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 12px;
+  min-height: 100vh;
+  /* dvh tracks the visible viewport as the iOS Safari toolbar shows/hides, so
+     the page bottom is reachable in one scroll instead of two. */
+  min-height: 100dvh;
+  background: var(--win-desktop);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+}
+
+button, input, select, textarea { font: inherit; }
+fieldset { border: none; margin: 0; padding: 0; }
+button, select { cursor: default; }
+
+/* =========================================
+   3D border utilities
+   ========================================= */
+.win-raised {
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light);
+}
+
+.win-sunken {
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark), inset -1px -1px 0 var(--win-light);
+}
+
+/* =========================================
+   App window shell
+   ========================================= */
+.win-app {
+  display: flex;
+  flex-direction: column;
+  max-width: 1440px;
+  min-height: calc(100vh - 24px);
+  min-height: calc(100dvh - 24px);
+  margin: 0 auto;
+  background: var(--win-face);
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light);
+}
+
+/* =========================================
+   Title bar
+   ========================================= */
+.win-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 3px 3px 3px 5px;
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+  font-size: 13px;
+  font-weight: bold;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.win-titlebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: var(--win-face);
+  color: var(--win-text);
+  font-size: 9px;
+  font-weight: bold;
+  border-top: 1px solid var(--win-hi);
+  border-left: 1px solid var(--win-hi);
+  border-bottom: 1px solid var(--win-dark);
+  border-right: 1px solid var(--win-dark);
+  flex-shrink: 0;
+  line-height: 1;
+  font-family: var(--ui-font);
+}
+
+.win-titlebar-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.win-titlebar-buttons {
+  display: flex;
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.win-titlebar-btn,
+.dos-titlebar-btn {
+  width: 20px;
+  height: 18px;
+  background: var(--win-face);
+  color: var(--win-text);
+  font-size: 11px;
+  font-family: var(--ui-font);
+  line-height: 1;
+  cursor: default;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--win-hi);
+  border-left: 1px solid var(--win-hi);
+  border-bottom: 1px solid var(--win-dark);
+  border-right: 1px solid var(--win-dark);
+}
+
+/* =========================================
+   Menu bar
+   ========================================= */
+.win-menubar {
+  display: flex;
+  align-items: stretch;
+  height: 24px;
+  background: var(--win-face);
+  border-bottom: 1px solid var(--win-shadow);
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.win-menubar-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 2px 6px;
+  font-size: 13px;
+  color: var(--win-text);
+  cursor: default;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.win-menubar-item:hover,
+.win-menubar-item.open {
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+}
+
+.win-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 9999;
+  background: var(--win-face);
+  min-width: 160px;
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light), 2px 2px 0 rgba(0,0,0,0.4);
+  padding: 2px 0;
+}
+
+.win-menubar-item.open .win-dropdown {
+  display: block;
+}
+
+.win-menu-item {
+  display: block;
+  width: 100%;
+  padding: 3px 20px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  background: transparent;
+  text-align: left;
+  cursor: default;
+  border: none;
+  white-space: nowrap;
+}
+
+.win-menu-item:hover:not(:disabled) {
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+}
+
+.win-menu-item:disabled {
+  color: var(--win-disabled);
+  cursor: default;
+}
+
+.size-option { position: relative; }
+.size-option.checked::before {
+  content: '\2713';
+  position: absolute;
+  left: 7px;
+}
+
+.win-menu-sep {
+  height: 0;
+  border-top: 1px solid var(--win-shadow);
+  border-bottom: 1px solid var(--win-hi);
+  margin: 3px 4px;
+}
+
+/* =========================================
+   Workspace split
+   ========================================= */
+.win-workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* =========================================
+   Control panel (left sidebar)
+   ========================================= */
+.control-panel {
+  width: 360px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-right: 1px solid var(--win-shadow);
+  background: var(--win-face);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* =========================================
+   GroupBox (Win3.1 fieldset)
+   ========================================= */
+.win-groupbox {
+  margin: 0;
+  padding: 13px 10px 10px;
+  background: var(--win-face);
+  border: 1px solid var(--win-shadow);
+  box-shadow: inset -1px -1px 0 var(--win-hi);
+}
+
+.win-groupbox > legend {
+  padding: 0 4px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  background: var(--win-face);
+  font-weight: normal;
+  margin-left: 6px;
+}
+
+.legend-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* =========================================
+   Layout helpers
+   ========================================= */
+.stack  { display: flex; flex-direction: column; gap: 7px; }
+.compact { gap: 4px; }
+.two-col   { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.wide { grid-column: 1 / -1; }
+
+.field-label { font-size: 13px; color: var(--win-text); }
+
+/* =========================================
+   Text inputs / textarea
+   ========================================= */
+.text-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 2px 4px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  background: var(--win-input-bg);
+  resize: vertical;
+  outline: none;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+.text-input:focus { outline: 1px dotted var(--win-text); outline-offset: -2px; }
+
+/* =========================================
+   Select
+   ========================================= */
+.select-input {
+  width: 100%;
+  min-height: 27px;
+  padding: 4px 34px 4px 6px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  background: var(--win-input-bg);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='17' height='17'%3E%3Crect x='0' y='0' width='17' height='17' fill='%23C0C0C0'/%3E%3Crect x='0' y='0' width='17' height='1' fill='%23808080'/%3E%3Crect x='0' y='0' width='1' height='17' fill='%23808080'/%3E%3Crect x='0' y='16' width='17' height='1' fill='%23FFFFFF'/%3E%3Crect x='16' y='0' width='1' height='17' fill='%23FFFFFF'/%3E%3Crect x='1' y='1' width='15' height='1' fill='%23DFDFDF'/%3E%3Crect x='1' y='1' width='1' height='15' fill='%23DFDFDF'/%3E%3Crect x='1' y='15' width='15' height='1' fill='%23404040'/%3E%3Crect x='15' y='1' width='1' height='15' fill='%23404040'/%3E%3Cpath d='M5 6l3.5 4 3.5-4z' fill='%23000000'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+  background-size: 20px 20px;
+  cursor: default;
+  outline: none;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+.select-input:focus { outline: 1px dotted var(--win-text); outline-offset: -2px; }
+
+/* =========================================
+   Number inputs
+   ========================================= */
+.number-input {
+  width: 100%;
+  padding: 2px 4px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  background: var(--win-input-bg);
+  text-align: center;
+  outline: none;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+.number-input:focus { outline: 1px dotted var(--win-text); outline-offset: -2px; }
+.number-input::-webkit-inner-spin-button,
+.number-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.number-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+/* =========================================
+   Solid/Gradient segmented control
+   (buttons styled as Win3.1 radio buttons)
+   ========================================= */
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.segment-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  background: var(--win-face);
+  cursor: default;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.segment-button::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border-top: 1px solid var(--win-shadow);
+  border-left: 1px solid var(--win-shadow);
+  border-bottom: 1px solid var(--win-hi);
+  border-right: 1px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark), inset -1px -1px 0 var(--win-light);
+  background: var(--win-input-bg);
+  flex-shrink: 0;
+  transition: none;
+}
+
+.segment-button.active::before {
+  background: radial-gradient(circle, var(--win-text) 3px, var(--win-input-bg) 4px);
+}
+
+.segment-button:focus-visible { outline: 1px dotted var(--win-text); outline-offset: 1px; }
+
+/* =========================================
+   Action buttons
+   ========================================= */
+.action-button {
+  padding: 5px 14px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  background: var(--win-face);
+  cursor: default;
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light);
+}
+
+.action-button:focus-visible { outline: 1px dotted var(--win-text); outline-offset: -4px; }
+
+.action-button:active:not(:disabled) {
+  border-top: 2px solid var(--win-dark);
+  border-left: 2px solid var(--win-dark);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-shadow);
+  padding-top: 6px;
+  padding-left: 15px;
+  padding-bottom: 4px;
+  padding-right: 13px;
+}
+
+.action-button:disabled {
+  color: var(--win-shadow);
+  cursor: not-allowed;
+}
+
+.download { font-weight: bold; }
+.download:not(:disabled) { color: var(--win-titlebar); }
+.action-button.secondary { font-weight: normal; color: var(--win-text); }
+
+.win-groupbox > .action-button.wide {
+  margin-top: 8px;
+}
+
+.font-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.font-actions #browseFonts { flex: 1; }
+
+/* =========================================
+   Range slider (Win3.1 trackbar)
+   ========================================= */
+.range-field { display: flex; flex-direction: column; gap: 6px; }
+
+.spacing-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.range-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--win-text);
+}
+
+.numeric-value {
+  min-width: 2ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.range-input {
+  width: 100%;
+  height: 22px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: default;
+  outline: none;
+  margin: 0;
+}
+
+.range-input::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--win-input-bg);
+  border-top: 1px solid var(--win-shadow);
+  border-left: 1px solid var(--win-shadow);
+  border-bottom: 1px solid var(--win-hi);
+  border-right: 1px solid var(--win-hi);
+}
+
+.range-input::-moz-range-track {
+  height: 4px;
+  background: var(--win-input-bg);
+  border-top: 1px solid var(--win-shadow);
+  border-left: 1px solid var(--win-shadow);
+  border-bottom: 1px solid var(--win-hi);
+  border-right: 1px solid var(--win-hi);
+  border-radius: 0;
+}
+
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 20px;
+  border-radius: 0;
+  background: var(--win-face);
+  margin-top: -8px;
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light);
+}
+
+.range-input::-moz-range-thumb {
+  width: 11px;
+  height: 20px;
+  border-radius: 0;
+  background: var(--win-face);
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light);
+}
+
+/* =========================================
+   Color swatches
+   ========================================= */
+.color-swatch {
+  display: block;
+  width: 100%;
+  height: 22px;
+  cursor: default;
+  padding: 0;
+  background: #000;
+  flex-shrink: 0;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+.color-swatch:focus-visible { outline: 1px dotted var(--win-text); }
+
+.swatch-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.swatch-row { display: flex; align-items: center; gap: 6px; }
+
+.swatch-field .color-swatch { width: 36px; height: 22px; }
+
+.preview-bg-swatch {
+  width: 16px;
+  height: 12px;
+  border: 1px solid var(--win-shadow);
+}
+
+/* =========================================
+   Color preview strip (gradient/solid)
+   ========================================= */
+.color-preview-strip {
+  height: 18px;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+/* =========================================
+   Add/remove gradient stop buttons
+   ========================================= */
+.remove-stop-btn {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  cursor: default;
+  font-size: 13px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ui-font);
+  background: var(--win-face);
+  color: var(--win-text);
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light);
+}
+
+.remove-stop-btn:active {
+  border-top-color: var(--win-dark);
+  border-left-color: var(--win-dark);
+  border-bottom-color: var(--win-hi);
+  border-right-color: var(--win-hi);
+}
+
+/* =========================================
+   Transparent background checkbox
+   ========================================= */
+.toggle-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  cursor: default;
+}
+
+.toggle-input {
+  width: 13px;
+  height: 13px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--win-input-bg);
+  cursor: default;
+  flex-shrink: 0;
+  position: relative;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+.toggle-input:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -3px;
+  left: 0;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--win-text);
+  font-family: var(--ui-font);
+}
+
+.toggle-label { font-size: 13px; color: var(--win-text); }
+
+/* =========================================
+   Export section
+   ========================================= */
+.export-divider {
+  border: none;
+  border-top: 1px solid var(--win-shadow);
+  border-bottom: 1px solid var(--win-hi);
+  margin: 4px 0;
+}
+
+/* =========================================
+   Status and banner dims — moved to status bar
+   ========================================= */
+.status-line { margin: 0; font-size: 13px; color: var(--win-text); }
+.status-line.error { color: #CC0000; }
+.banner-dims { display: none; }   /* content now in #statusDims status panel */
+
+/* =========================================
+   TDF palette controls
+   ========================================= */
+.tdf-palette-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px 10px;
+}
+
+.tdf-palette-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.color-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tdf-palette-actions .action-button,
+.color-actions .action-button {
+  flex: 1;
+}
+
+.color-actions .action-button[hidden] {
+  display: none;
+}
+
+.palette-slot {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.palette-slot-id {
+  font-family: var(--dos-font);
+  font-size: 12px;
+  color: var(--win-text);
+}
+
+/* =========================================
+   Preview column (right)
+   ========================================= */
+.preview-column {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* =========================================
+   DOS sub-window chrome
+   ========================================= */
+.dos-window {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light);
+}
+
+.terminal-panel {
+  flex: 0 0 600px;
+  height: 600px;
+  min-height: 0;
+}
+
+/* Fixed terminal size selected: window hugs the cols x rows preview viewport. */
+.terminal-panel.sized {
+  flex: 0 0 auto;
+  height: auto;
+  align-self: flex-start;
+}
+
+.output-panel {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+}
+
+.api-panel {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+  margin-top: 12px;
+}
+
+.api-scroll {
+  flex: 1;
+  min-height: 348px;
+  max-height: 348px;
+}
+
+.dos-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 3px 3px 3px 5px;
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+  font-size: 13px;
+  font-weight: bold;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.dos-titlebar-icon { font-size: 11px; flex-shrink: 0; }
+.dos-titlebar-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+
+.dos-titlebar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.preview-bg-field { display: flex; align-items: center; gap: 3px; cursor: default; }
+.preview-bg-label { color: var(--win-title-text); font-size: 11px; }
+
+/* =========================================
+   DOS prompt line
+   ========================================= */
+.dos-prompt-line {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  background: var(--dos-bg);
+  font-family: var(--dos-font);
+  font-size: 14px;
+  line-height: 1.2;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.dos-prompt-text { color: var(--dos-prompt-fg, var(--dos-text)); }
+.dos-command-text { color: var(--dos-prompt-fg, var(--dos-text)); }
+
+.dos-cursor {
+  color: var(--dos-prompt-fg, var(--dos-text));
+  animation: blink 1.2s step-end infinite;
+  margin-left: 1px;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) { .dos-cursor { animation: none; } }
+
+/* =========================================
+   Terminal preview area
+   ========================================= */
+.terminal-preview {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--dos-bg);
+  padding: 8px;
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 1px,
+    rgba(0,0,0,0.06) 1px, rgba(0,0,0,0.06) 2px
+  );
+}
+
+/* =========================================
+   ANSI output panel
+   ========================================= */
+.terminal-text {
+  font-family: var(--dos-font);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+/* Scroll wrapper holds the C:\\> prompt line and the content together, so the
+   prompt scrolls up out of view with the content like a real terminal. */
+.dos-scroll {
+  overflow: auto;
+  background: var(--dos-bg);
+}
+
+.dos-scroll .dos-prompt-line {
+  overflow: visible;
+}
+
+.ansi-scroll {
+  flex: 1;
+  /* Matched to .api-scroll so the ANSI and curl windows are the same height;
+     fixed so content scrolls inside the panel instead of growing it unbounded */
+  min-height: 348px;
+  max-height: 348px;
+}
+
+.ansi-output {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 8px;
+  color: var(--dos-text);
+  font-family: var(--dos-font);
+  font-size: 12px;
+  line-height: 1.3;
+  background: var(--dos-bg);
+  margin: 0;
+}
+
+/* =========================================
+   Status bar
+   ========================================= */
+.win-statusbar {
+  display: flex;
+  align-items: stretch;
+  height: 26px;
+  background: var(--win-face);
+  border-top: 1px solid var(--win-shadow);
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 2px 4px;
+}
+
+.win-status-panel {
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-text);
+  border-top: 1px solid var(--win-shadow);
+  border-left: 1px solid var(--win-shadow);
+  border-bottom: 1px solid var(--win-hi);
+  border-right: 1px solid var(--win-hi);
+  white-space: nowrap;
+  margin: 0;
+  min-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.win-status-panel:first-child { flex: 1; }
+#status.error, #status.status-line.error { color: #CC0000; }
+.win-status-version { min-width: 36px; }
+.win-status-domain { min-width: 100px; }
+
+/* =========================================
+   Color picker (Win3.1 dialog style)
+   ========================================= */
+.cpicker {
+  position: fixed;
+  z-index: 9999;
+  display: none;
+  background: var(--win-face);
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light), 3px 3px 0 rgba(0,0,0,0.35);
+  padding: 8px;
+  padding-top: 0;
+  user-select: none;
+  width: fit-content;
+}
+
+.cpicker-titlebar {
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: bold;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  margin: 0 -8px 8px -8px;
+  user-select: none;
+}
+
+.cpicker-sv-wrap {
+  position: relative;
+  width: 192px;
+  height: 144px;
+  overflow: hidden;
+  cursor: crosshair;
+  margin-bottom: 6px;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+.cpicker-sv { display: block; width: 100%; height: 100%; }
+
+.cpicker-sv-cursor {
+  position: absolute;
+  top: 0; left: 0;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
+  pointer-events: none;
+  margin-left: -5px;
+  margin-top: -5px;
+}
+
+.cpicker-hue-wrap {
+  position: relative;
+  width: 192px;
+  height: 14px;
+  overflow: hidden;
+  cursor: crosshair;
+  margin-bottom: 6px;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+}
+
+.cpicker-hue { display: block; width: 100%; height: 100%; }
+
+.cpicker-hue-cursor {
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  border: 1px solid #000;
+  background: rgba(255,255,255,0.3);
+  pointer-events: none;
+  margin-left: -2px;
+}
+
+.cpicker-bottom { display: flex; gap: 6px; align-items: center; }
+
+.cpicker-preview {
+  width: 24px; height: 24px;
+  flex-shrink: 0;
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+}
+
+.cpicker-hex {
+  flex: 1;
+  background: var(--win-input-bg);
+  border-top: 2px solid var(--win-shadow);
+  border-left: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  box-shadow: inset 1px 1px 0 var(--win-dark);
+  color: var(--win-text);
+  font-family: var(--dos-font);
+  font-size: 13px;
+  padding: 2px 4px;
+  width: 0;
+  outline: none;
+}
+
+.cpicker-hex:focus { outline: 1px dotted var(--win-text); }
+
+/* =========================================
+   Responsive — narrow viewports
+   ========================================= */
+@media (max-width: 900px) {
+  .win-workspace { flex-direction: column; overflow-y: auto; }
+  .control-panel { width: 100%; border-right: none; border-top: 1px solid var(--win-shadow); border-bottom: none; overflow: visible; order: 2; }
+  .preview-column { order: 1; }
+  /* Banner Text gets relocated here by syncBannerTextPlacement() so it sits
+     above the preview, where people can edit and see the result without
+     scrolling past a tall banner. */
+  .win-workspace > .win-groupbox { order: 0; flex-shrink: 0; margin: 10px 10px 0; }
+  .terminal-panel { flex: 0 0 320px; height: 320px; }
+  .ansi-scroll, .api-scroll { min-height: calc(16em + 48px); max-height: calc(16em + 48px); }
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  /* iOS Safari auto-zooms into any focused field with font-size < 16px and
+     never zooms back out, breaking the layout. 16px on form controls stops it. */
+  .text-input, .select-input { font-size: 16px; }
+}
+
+/* =========================================
+   Font Browser overlay
+   ========================================= */
+body.fb-open {
+  overflow: hidden;
+}
+
+.fb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+}
+
+.fb-win {
+  background: var(--win-face);
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light), 4px 4px 0 rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1300px;
+  /* svh = the smallest (URL-bar-visible) viewport, so the window and its bottom
+     row always fit on screen regardless of the iOS toolbar state. */
+  height: calc(100vh - 40px);
+  height: calc(100svh - 40px);
+}
+
+.fb-titlebar {
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: bold;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px 0 6px;
+  gap: 6px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.fb-titlebar-icon {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.fb-titlebar-title { flex: 1; }
+
+.fb-titlebar-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.fb-searchbar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--win-shadow);
+}
+
+.fb-searchbar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fb-searchbar-controls {
+  justify-content: space-between;
+}
+
+.fb-search-input {
+  flex: 1;
+  max-width: 320px;
+  min-height: unset;
+  resize: none;
+}
+
+@media (max-width: 900px) {
+  /* iOS Safari auto-zooms the page on focus when an input's font-size is
+     below 16px. The search field autofocuses the instant the browser opens,
+     so it must clear that threshold to stop the page from zooming in. */
+  .fb-search-input { font-size: 16px; }
+}
+
+.fb-type-btns,
+.fb-jump-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.fb-type-btn,
+.fb-jump-btn {
+  height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-family: var(--ui-font);
+  background: var(--win-face);
+  color: var(--win-text);
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  white-space: nowrap;
+}
+
+.fb-type-btn.active {
+  border-top: 2px solid var(--win-dark);
+  border-left: 2px solid var(--win-dark);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+}
+
+.fb-type-btn:hover:not(.active),
+.fb-jump-btn:hover {
+  background: var(--win-light);
+}
+
+.fb-grid {
+  flex: 1;
+  overflow-y: auto;
+  /* contain stops the touch scroll from chaining into the locked body, which
+     on iOS swallowed the first swipe and forced a second to reach the bottom. */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 8px 16px;
+  scroll-padding-bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-auto-rows: 116px;
+  gap: 6px;
+  align-content: start;
+}
+
+.fb-card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 116px;
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  overflow: hidden;
+  user-select: none;
+}
+
+.fb-card:hover {
+  border-color: var(--win-titlebar);
+  outline: 1px solid var(--win-titlebar);
+}
+
+.fb-card:active {
+  border-top: 2px solid var(--win-dark);
+  border-left: 2px solid var(--win-dark);
+  border-bottom: 2px solid var(--win-hi);
+  border-right: 2px solid var(--win-hi);
+}
+
+.fb-card-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.fb-card-preview canvas {
+  max-height: 88px;
+  max-width: 100%;
+  display: block;
+}
+
+.fb-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  color: var(--win-shadow);
+  padding: 40px;
+}
+
+.fb-card-label {
+  font-family: var(--ui-font);
+  font-size: 11px;
+  color: var(--win-text);
+  background: var(--win-face);
+  padding: 3px 6px 4px;
+  border-top: 1px solid var(--win-shadow);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   Credits dialog
+   ========================================= */
+.credits-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.credits-dialog {
+  background: var(--win-face);
+  border-top: 2px solid var(--win-hi);
+  border-left: 2px solid var(--win-hi);
+  border-bottom: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-dark);
+  box-shadow: inset -1px -1px 0 var(--win-shadow), inset 1px 1px 0 var(--win-light), 4px 4px 0 rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 460px;
+}
+
+.credits-titlebar {
+  background: var(--win-titlebar);
+  color: var(--win-title-text);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: bold;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px 0 6px;
+  gap: 6px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.credits-titlebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: var(--win-face);
+  color: var(--win-text);
+  font-size: 9px;
+  font-weight: bold;
+  border-top: 1px solid var(--win-hi);
+  border-left: 1px solid var(--win-hi);
+  border-bottom: 1px solid var(--win-dark);
+  border-right: 1px solid var(--win-dark);
+  flex-shrink: 0;
+  font-family: var(--ui-font);
+}
+
+.credits-titlebar-title { flex: 1; }
+
+.credits-titlebar-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.credits-body {
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: calc(100vh - 160px);
+  max-height: calc(100dvh - 160px);
+}
+
+.credits-app-block {
+  text-align: center;
+  padding-bottom: 12px;
+}
+
+.credits-app-name {
+  font-size: 15px;
+  font-weight: bold;
+  font-family: var(--ui-font);
+}
+
+.credits-app-desc {
+  font-size: 12px;
+  color: var(--win-shadow);
+  font-family: var(--ui-font);
+  margin-top: 2px;
+}
+
+.credits-rule {
+  border: none;
+  border-top: 1px solid var(--win-shadow);
+  border-bottom: 1px solid var(--win-hi);
+  margin: 10px 0;
+}
+
+.credits-section { margin: 12px 0; }
+
+.credits-section-title {
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: bold;
+  margin: 0 0 5px;
+}
+
+.credits-section-body {
+  font-family: var(--ui-font);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 4px;
+  color: var(--win-text);
+}
+
+.credits-section-link {
+  font-family: var(--ui-font);
+  font-size: 12px;
+  margin: 0;
+  color: var(--win-shadow);
+}
+
+.credits-link {
+  color: #000080;
+}
+
+.credits-footer {
+  padding: 8px 16px 12px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.credits-ok-btn {
+  min-width: 75px;
+}
+
+.about-dialog {
+  max-width: 300px;
+}
+
+.about-body {
+  text-align: center;
+  padding: 24px 16px 16px;
+}
+
+.about-byline {
+  font-family: var(--ui-font);
+  font-size: 12px;
+  color: var(--win-shadow);
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.about-link {
+  display: block;
+  font-family: var(--ui-font);
+  font-size: 12px;
+}
+
+.api-variants {
+  padding: 8px 10px;
+  background: var(--dos-bg, #000);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.api-row {
+  margin-bottom: 0.6rem;
+}
+
+.api-row:last-child {
+  margin-bottom: 0;
+}
+
+.api-label {
+  display: block;
+  color: var(--dos-prompt-fg, #4ec9b0);
+  margin-bottom: 2px;
+  user-select: none;
+}
+
+.api-curl {
+  display: block;
+  cursor: pointer;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #d4d4d4;
+  background: #0b0e10;
+  border: 1px solid #2a2f33;
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+
+.api-curl:hover {
+  border-color: var(--dos-prompt-fg, #4ec9b0);
+  color: #fff;
+}
+
+.api-curl:focus-visible {
+  outline: 2px solid var(--dos-prompt-fg, #4ec9b0);
+  outline-offset: 1px;
+}
+
+.api-curl-copied {
+  border-color: #4ec9b0;
+  background: #10331f;
+  color: #b6f2c8;
+}

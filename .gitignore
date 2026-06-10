@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# AI coding agents, tooling scratch, and planning artifacts
+.agents/
+.claude/
+.codex/
+.cursor/
+.impeccable/
+.playwright-mcp/
+.worktrees/
+docs/superpowers/
+
+# Cloudflare Wrangler local state
+.wrangler/
