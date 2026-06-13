@@ -63,6 +63,11 @@ function validatePalettes(raw, warnings) {
   if (!raw || typeof raw !== 'object') return out;
   let dropped = false;
   for (const [fontKey, slots] of Object.entries(raw)) {
+    // reject prototype-polluting keys before using fontKey as a property name
+    if (fontKey === '__proto__' || fontKey === 'constructor' || fontKey === 'prototype') {
+      dropped = true;
+      continue;
+    }
     if (!slots || typeof slots !== 'object') { dropped = true; continue; }
     const slotOut = {};
     let ok = true;

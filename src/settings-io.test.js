@@ -146,6 +146,18 @@ test('parseSettings drops malformed tdf palette entries', () => {
   assert.deepEqual(Object.keys(settings.tdfPalettes), ['tdf:Good']);
 });
 
+test('parseSettings rejects prototype-polluting palette keys', () => {
+  const file = JSON.parse(
+    '{"app":"termbanner","version":1,"settings":{"tdfPalettes":'
+    + '{"__proto__":{"0x07":{"fg":{"r":1,"g":2,"b":3},"bg":{"r":4,"g":5,"b":6}}},'
+    + '"tdf:Good":{"0x07":{"fg":{"r":1,"g":2,"b":3},"bg":{"r":4,"g":5,"b":6}}}}}}',
+  );
+  const { settings } = parseSettings(file, { defaults: DEFAULTS });
+  assert.deepEqual(Object.keys(settings.tdfPalettes), ['tdf:Good']);
+  assert.equal(Object.getPrototypeOf(settings.tdfPalettes), Object.prototype);
+  assert.equal(({}).polluted, undefined);
+});
+
 test('parseSettings coerces transparentBg to boolean', () => {
   const file = { app: 'termbanner', version: 1, settings: { transparentBg: 0 } };
   const { settings } = parseSettings(file, { defaults: DEFAULTS });
