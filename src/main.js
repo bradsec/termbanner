@@ -799,7 +799,14 @@ function openAboutDialog() {
 
   const byLine = document.createElement('div');
   byLine.className = 'about-byline';
-  byLine.textContent = 'By Mark Bradley';
+  byLine.textContent = 'By ';
+  const byLink = document.createElement('a');
+  byLink.className = 'credits-link';
+  byLink.href = 'https://github.com/bradsec';
+  byLink.textContent = 'Mark Bradley';
+  byLink.target = '_blank';
+  byLink.rel = 'noopener noreferrer';
+  byLine.append(byLink);
 
   body.append(appName, byLine);
 
