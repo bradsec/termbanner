@@ -13,6 +13,7 @@ import { FontBrowser } from './font-browser.js';
 import { renderBanner as composeBanner, bannerColors, bannerToAnsi, hasPlainText } from './banner.js';
 import { buildApiVariants } from './api-url.js';
 import { DEFAULT_BANNER_TEXT, browseFontsLabel, buildFontOptionsHtml, randomFontKey } from './app-defaults.js';
+import { serializeSettings, parseSettings } from './settings-io.js';
 
 const app = document.querySelector('#app');
 
@@ -119,6 +120,9 @@ app.innerHTML = `
         <button type="button" class="win-menu-item" id="menuCopyJs">Copy .js</button>
         <button type="button" class="win-menu-item" id="menuCopyAnsi">Copy ANSI</button>
         <button type="button" class="win-menu-item" id="menuCopyPlain">Copy plain text</button>
+        <div class="win-menu-sep"></div>
+        <button type="button" class="win-menu-item" id="menuSaveSettings">Save settings (.json)</button>
+        <button type="button" class="win-menu-item" id="menuLoadSettings">Load settings...</button>
       </div>
     </div>
     <div class="win-menubar-item" id="optionsMenu">Options
@@ -667,6 +671,17 @@ function initMenuBar() {
     });
   };
 
+  const settingsFileInput = document.createElement('input');
+  settingsFileInput.type = 'file';
+  settingsFileInput.accept = 'application/json,.json';
+  settingsFileInput.hidden = true;
+  document.body.append(settingsFileInput);
+  settingsFileInput.addEventListener('change', () => {
+    const file = settingsFileInput.files && settingsFileInput.files[0];
+    settingsFileInput.value = '';
+    if (file) loadSettingsFile(file);
+  });
+
   wire('menuDownloadSh',  () => download('banner.sh',  currentShellScript(),       'text/x-shellscript'));
   wire('menuDownloadPs1', () => download('banner.ps1', currentPowerShellScript(),   'text/plain'));
   wire('menuDownloadZip', () => downloadZip());
@@ -682,6 +697,10 @@ function initMenuBar() {
   wire('menuCopyGo',      () => copyText(currentGoScript()));
   wire('menuCopyRs',      () => copyText(currentRustScript()));
   wire('menuCopyJs',      () => copyText(currentJavaScriptScript()));
+  wire('menuSaveSettings', () => {
+    download('termbanner-settings.json', JSON.stringify(serializeSettings(state), null, 2), 'application/json');
+  });
+  wire('menuLoadSettings', () => settingsFileInput.click());
 
   document.querySelector('#menuPreviewBg')?.addEventListener('click', () => {
     menuItems.forEach((i) => i.classList.remove('open'));
@@ -958,6 +977,70 @@ function openCreditsDialog() {
 function update(key, value) {
   state[key] = value;
   render();
+}
+
+function getSettingsDefaults() {
+  return {
+    text: DEFAULT_BANNER_TEXT,
+    fontKey: 'flf:ANSI_Shadow',
+    fontTypeFilter: 'thedraw',
+    colorMode: 'gradient',
+    solidColor: DEFAULTS.solidColor,
+    gradientColors: [...DEFAULTS.gradientColors],
+    plainTextColor: DEFAULTS.plainTextColor,
+    plainTextColorMode: 'auto',
+    terminalMode: 'truecolor',
+    letterSpacing: DEFAULTS.letterSpacing,
+    lineSpacing: DEFAULTS.lineSpacing,
+    paddingLeft: DEFAULTS.paddingLeft,
+    paddingTop: DEFAULTS.paddingTop,
+    paddingBottom: DEFAULTS.paddingBottom,
+    transparentBg: true,
+    previewBg: DEFAULTS.previewBg,
+    previewFg: DEFAULTS.previewFg,
+    previewSizeId: DEFAULTS.previewSizeId,
+    tdfPalettes: {},
+  };
+}
+
+function applySettings(parsed) {
+  const { settings, warnings } = parsed;
+  const palettes = settings.tdfPalettes;
+  delete settings.tdfPalettes;
+  Object.assign(state, settings);
+  state.tdfPalettes = new Map(Object.entries(palettes));
+
+  const available = new Set(Array.from(elements.fontKey.options).map((o) => o.value));
+  if (!available.has(state.fontKey)) {
+    state.fontKey = available.has('flf:ANSI_Shadow') ? 'flf:ANSI_Shadow' : randomFontKey(state);
+    warnings.push('Saved font was unavailable; using a default.');
+  }
+
+  elements.bannerText.value = state.text;
+  rebuildFontOptions();
+  render();
+  setStatus(warnings.length ? 'Settings loaded with adjustments' : 'Settings loaded');
+}
+
+function loadSettingsFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    let raw;
+    try {
+      raw = JSON.parse(reader.result);
+    } catch {
+      setStatus('Not a valid TermBanner settings file', true);
+      return;
+    }
+    const parsed = parseSettings(raw, { defaults: getSettingsDefaults() });
+    if (!parsed) {
+      setStatus('Not a valid TermBanner settings file', true);
+      return;
+    }
+    applySettings(parsed);
+  };
+  reader.onerror = () => setStatus('Could not read settings file', true);
+  reader.readAsText(file);
 }
 
 function rebuildFontOptions() {
