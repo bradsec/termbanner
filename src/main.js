@@ -104,23 +104,6 @@ app.innerHTML = `
   <div class="win-menubar" role="menubar">
     <div class="win-menubar-item" id="fileMenu">File
       <div class="win-dropdown" role="menu">
-        <button type="button" class="win-menu-item" id="menuDownloadSh">Download .sh</button>
-        <button type="button" class="win-menu-item" id="menuDownloadPs1">Download .ps1</button>
-        <button type="button" class="win-menu-item" id="menuDownloadPy">Download .py</button>
-        <button type="button" class="win-menu-item" id="menuDownloadGo">Download .go</button>
-        <button type="button" class="win-menu-item" id="menuDownloadRs">Download .rs</button>
-        <button type="button" class="win-menu-item" id="menuDownloadJs">Download .js</button>
-        <button type="button" class="win-menu-item" id="menuDownloadZip">Download all (.zip)</button>
-        <div class="win-menu-sep"></div>
-        <button type="button" class="win-menu-item" id="menuCopySh">Copy .sh</button>
-        <button type="button" class="win-menu-item" id="menuCopyPs1">Copy .ps1</button>
-        <button type="button" class="win-menu-item" id="menuCopyPy">Copy .py</button>
-        <button type="button" class="win-menu-item" id="menuCopyGo">Copy .go</button>
-        <button type="button" class="win-menu-item" id="menuCopyRs">Copy .rs</button>
-        <button type="button" class="win-menu-item" id="menuCopyJs">Copy .js</button>
-        <button type="button" class="win-menu-item" id="menuCopyAnsi">Copy ANSI</button>
-        <button type="button" class="win-menu-item" id="menuCopyPlain">Copy plain text</button>
-        <div class="win-menu-sep"></div>
         <button type="button" class="win-menu-item" id="menuSaveSettings">Save settings (.json)</button>
         <button type="button" class="win-menu-item" id="menuLoadSettings">Load settings...</button>
       </div>
@@ -682,21 +665,6 @@ function initMenuBar() {
     if (file) loadSettingsFile(file);
   });
 
-  wire('menuDownloadSh',  () => download('banner.sh',  currentShellScript(),       'text/x-shellscript'));
-  wire('menuDownloadPs1', () => download('banner.ps1', currentPowerShellScript(),   'text/plain'));
-  wire('menuDownloadZip', () => downloadZip());
-  wire('menuCopySh',      () => copyText(currentShellScript()));
-  wire('menuCopyPs1',     () => copyText(currentPowerShellScript()));
-  wire('menuCopyAnsi',    () => copyText(currentAnsiText()));
-  wire('menuCopyPlain',   () => copyText(currentPlainText()));
-  wire('menuDownloadPy',  () => download('banner.py',  currentPythonScript(),      'text/x-python'));
-  wire('menuDownloadGo',  () => download('banner.go',  currentGoScript(),          'text/x-go'));
-  wire('menuDownloadRs',  () => download('banner.rs',  currentRustScript(),        'text/x-rust'));
-  wire('menuDownloadJs',  () => download('banner.js',  currentJavaScriptScript(),  'text/javascript'));
-  wire('menuCopyPy',      () => copyText(currentPythonScript()));
-  wire('menuCopyGo',      () => copyText(currentGoScript()));
-  wire('menuCopyRs',      () => copyText(currentRustScript()));
-  wire('menuCopyJs',      () => copyText(currentJavaScriptScript()));
   wire('menuSaveSettings', () => {
     download('termbanner-settings.json', JSON.stringify(serializeSettings(state), null, 2), 'application/json');
   });
