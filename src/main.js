@@ -554,7 +554,11 @@ function bindInputs() {
     const key = tdfKeyFromFontKey(state.fontKey);
     const pal = state.tdfPalettes.get(key);
     if (!pal) return;
-    state.tdfPalettes.set(key, randomizePalette(pal, Object.keys(pal), state.terminalMode));
+    // Randomize from the font's default palette, not the live one, so brightness
+    // is taken from the font's original shading rather than the last set palette
+    // (which may already be randomized or quantized to a narrower ANSI depth).
+    const base = defaultPaletteForSlots(Object.keys(pal));
+    state.tdfPalettes.set(key, randomizePalette(base, Object.keys(base), state.terminalMode));
     render();
   });
   elements.resetPalette.addEventListener('click', () => {

@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomizePalette } from './random-palette.js';
+import { defaultPaletteForSlots } from './cell-render.js';
 import { rgbToHsl, quantizeColor } from './color.js';
+
+const lightnessProfile = (pal) =>
+  Object.keys(pal)
+    .sort()
+    .map((slot) => rgbToHsl(pal[slot].fg).l);
 
 const samplePalette = () => ({
   '0x00': { fg: { r: 0, g: 0, b: 0 }, bg: { r: 0, g: 0, b: 0 } },
@@ -38,6 +44,49 @@ test('randomizePalette near-white anchor stays neutral', () => {
   const white = { '0xff': { fg: { r: 255, g: 255, b: 255 }, bg: { r: 0, g: 0, b: 0 } } };
   const outWhite = randomizePalette(white, Object.keys(white), 'truecolor', () => 0.5);
   assert.deepEqual(outWhite['0xff'].fg, { r: 255, g: 255, b: 255 });
+});
+
+test('seeding from the default palette keeps lightness closer to the font than compounding (16)', () => {
+  // The Random Palette button must randomize from the font default, not the
+  // live palette. In a narrow depth, quantization breaks lightness-preservation,
+  // so compounding from the previous result drifts brightness away from the
+  // font's shading. Re-seeding from the default each time avoids that drift.
+  const slots = ['0x07', '0x08', '0x0f', '0x70', '0x01', '0x0c'];
+  const def = defaultPaletteForSlots(slots);
+  const baseL = lightnessProfile(def);
+  const drift = (pal) =>
+    lightnessProfile(pal).reduce((sum, l, i) => sum + Math.abs(l - baseL[i]), 0);
+
+  // small deterministic PRNG so the test does not depend on Math.random
+  const lcg = (seed) => {
+    let s = seed >>> 0;
+    return () => {
+      s = (1664525 * s + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  };
+
+  const trials = 200;
+  let seededTotal = 0;
+  let compoundTotal = 0;
+  for (let t = 0; t < trials; t += 1) {
+    const random = lcg(t * 2654435761 + 1);
+    // correct behaviour: always randomize from the font default
+    seededTotal += drift(randomizePalette(def, Object.keys(def), '16', random));
+    // buggy behaviour: feed each result back in (last set palette)
+    let live = def;
+    for (let i = 0; i < 6; i += 1) {
+      live = randomizePalette(live, Object.keys(live), '16', random);
+    }
+    compoundTotal += drift(live);
+  }
+
+  // averaged over many trials, re-seeding from default tracks the font's
+  // lightness markedly better than compounding off the previous palette
+  assert.ok(
+    seededTotal < compoundTotal,
+    `seeded total drift ${seededTotal.toFixed(2)} should be below compound total ${compoundTotal.toFixed(2)}`,
+  );
 });
 
 test('randomizePalette quantizes output to the selected depth (16)', () => {
