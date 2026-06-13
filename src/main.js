@@ -786,11 +786,11 @@ function openAboutDialog() {
 
   const byLine = document.createElement('div');
   byLine.className = 'about-byline';
-  byLine.textContent = 'By ';
+  byLine.textContent = 'Developed by ';
   const byLink = document.createElement('a');
   byLink.className = 'credits-link';
   byLink.href = 'https://github.com/bradsec';
-  byLink.textContent = 'Mark Bradley';
+  byLink.textContent = 'BRADSEC';
   byLink.target = '_blank';
   byLink.rel = 'noopener noreferrer';
   byLine.append(byLink);
