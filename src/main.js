@@ -1017,8 +1017,7 @@ function applySettings(parsed) {
   }
 
   elements.bannerText.value = state.text;
-  rebuildFontOptions();
-  render();
+  rebuildFontOptions(); // rebuilds the font <select> and calls render()
   setStatus(warnings.length ? 'Settings loaded with adjustments' : 'Settings loaded');
 }
 
