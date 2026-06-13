@@ -101,6 +101,13 @@ test('parseSettings rejects control-char text, falls back', () => {
   assert.ok(warnings.length >= 1);
 });
 
+test('parseSettings accepts multi-line banner text (tab and newline allowed)', () => {
+  const file = { app: 'termbanner', version: 1, settings: { text: 'LINE ONE\nLINE\tTWO' } };
+  const { settings, warnings } = parseSettings(file, { defaults: DEFAULTS });
+  assert.equal(settings.text, 'LINE ONE\nLINE\tTWO');
+  assert.equal(warnings.length, 0);
+});
+
 test('parseSettings truncates over-long text', () => {
   const file = { app: 'termbanner', version: 1, settings: { text: 'a'.repeat(5000) } };
   const { settings } = parseSettings(file, { defaults: DEFAULTS });
